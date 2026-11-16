@@ -1,22 +1,16 @@
-'use client';
-
 import { lusitana } from '@/app/ui/font';
 import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import {
-    AtSymbolIcon,
-    KeyIcon,
-} from '@heroicons/react/24/outline';
+import { AtSymbolIcon, KeyIcon } from '@heroicons/react/24/outline';
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
+import { authenticate } from '@/app/lib/actions';
 
-export default function Page() {
-  const router = useRouter();
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault(); // Mencegah form reload dan data masuk ke URL
-    router.push('/dashboard'); // Langsung masuk ke halaman dashboard
-  };
+export default async function Page({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const { error } = await searchParams;
 
   return (
     <main className="flex min-h-screen flex-col p-6">
@@ -29,8 +23,8 @@ export default function Page() {
           alt="Banner UIA"
         />
       </div>
-      <div className="flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20 mx-auto">
-        <form onSubmit={handleLogin} className="space-y-3">
+      <div className="mx-auto flex flex-col justify-center gap-6 rounded-lg bg-gray-50 px-6 py-10 md:w-2/5 md:px-20">
+        <form action={authenticate} className="space-y-3">
           <div className="flex-1 rounded-lg bg-gray-50 px-6 pb-4 pt-8">
             <h1 className={`${lusitana.className} mb-3 text-2xl`}>
               Silakan Masuk dengan akun Anda.
@@ -50,6 +44,7 @@ export default function Page() {
                     type="email"
                     name="email"
                     placeholder="Ketikkan alamat email"
+                    autoComplete="email"
                     required
                   />
                   <AtSymbolIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
@@ -69,6 +64,7 @@ export default function Page() {
                     type="password"
                     name="password"
                     placeholder="Ketikkan Kata Sandi"
+                    autoComplete="current-password"
                     required
                     minLength={6}
                   />
@@ -76,12 +72,14 @@ export default function Page() {
                 </div>
               </div>
             </div>
-            <Button className="mt-4 w-full">
+            <Button className="mt-4 w-full" type="submit">
               Masuk <ArrowRightIcon className="ml-auto h-5 w-5 text-gray-50" />
             </Button>
-            <div className="flex h-8 items-end space-x-1">
-              {/* Add form errors here */}
-            </div>
+            {error === 'CredentialsSignin' && (
+              <p className="mt-3 text-sm text-red-600" role="alert">
+                Email atau kata sandi salah.
+              </p>
+            )}
           </div>
         </form>
       </div>
